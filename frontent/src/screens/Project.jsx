@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios from '../config/axios'
-
+import { initializeSocket  , receiveMessage , sendMessage} from '../config/socket'
 const Project = () => {
   const location = useLocation() // project ko open kar liya hai 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false)
@@ -47,6 +47,9 @@ const Project = () => {
 
 
   useEffect(() => {
+
+
+initializeSocket()
 
 
     axios.get(`/api/projects/get-project/${location.state.project._id}`).then(res => {
@@ -144,15 +147,6 @@ const Project = () => {
           </header>
 
           <div className="users flex flex-col gap-2">
-
-
-
-     
-
-
-
-
-
 
 
 
