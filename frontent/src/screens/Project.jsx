@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios from '../config/axios'
-import { initializeSocket  , receiveMessage , sendMessage} from '../config/socket'
+import { initializeSocket, receiveMessage, sendMessage } from '../config/socket'
+import { UserContext } from '../context/user.context'
 const Project = () => {
   const location = useLocation() // project ko open kar liya hai 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState([])
   const [project, setProject] = useState(location.state.project)
+  const [message, setMessage] = useState('')
+  const { user } = useContext(UserContext)
 
+const messageBox = useRef(null)
 
   const [users, setUsers] = useState([])
-
 
 
   const handleUserClick = (id) => {
@@ -43,14 +46,31 @@ const Project = () => {
     })
   }
 
+  const send = () => {
 
+   
+
+    sendMessage('project-message', {
+      message,
+      sender: user
+    })
+
+
+    appendOutgoingMessage(message)
+    setMessage("")
+  }
 
 
   useEffect(() => {
 
 
-initializeSocket()
+    initializeSocket(project._id)
 
+
+    receiveMessage('project-message', data => {
+      console.log(data)
+      appendIncomingMessage(data)
+    })
 
     axios.get(`/api/projects/get-project/${location.state.project._id}`).then(res => {
       console.log(res.data.project)
@@ -70,20 +90,48 @@ initializeSocket()
 
 
 
+function appendIncomingMessage(messageObject) {
+
+       const messageBox = document.querySelector('.message-box')
+
+    const message = document.createElement('div')
+    message.classList.add('message', 'max-w-56', 'flex', 'flex-col','p-2', 'bg-slate-50' , 'rounded-md','w-fit','break-all')
+    message.innerHTML = `
+        <small class='opacity-65 text-xs'>${messageObject.sender.email}</small>
+        <p class='text-sm'>${messageObject.message}</p>
+    `
+
+    messageBox.appendChild(message)
+    scrollToBottom()
+}
+function appendOutgoingMessage(message) {
+
+       const messageBox = document.querySelector('.message-box')
+
+    const newmessage = document.createElement('div')
+    newmessage.classList.add('ml-auto','message', 'max-w-56', 'flex', 'flex-col','p-2' , 'bg-slate-50' , 'rounded-md' , 'w-fit','break-all')
+    newmessage.innerHTML = `
+        <small class='opacity-65 text-xs'>${user.email}</small>
+        <p class='text-sm'>${message}</p>
+    `
+
+    messageBox.appendChild(newmessage)
+    scrollToBottom()
+}
 
 
-
-
-
-
-
+function scrollToBottom(){
+  if (messageBox.current) {
+    messageBox.current.scrollTop = messageBox.current.scrollHeight
+  }
+}
 
   return (
     <main className='h-screen w-screen flex'>
 
-      <section className="left relative flex flex-col h-full min-w-96 bg-slate-300">
+      <section className="left relative flex flex-col h-screen min-w-96 bg-slate-300">
 
-        <header className='flex justify-between items-center p-2 px-4 w-full bg-slate-100'>
+        <header className='flex justify-between items-center p-2 px-4 w-full bg-slate-100 absolute top-0  z-10'>
 
           <button
             className='flex gap-2 items-center' onClick={() => setIsModalOpen(true)}>
@@ -100,31 +148,32 @@ initializeSocket()
           </button>
         </header>
 
-        <div className="conversation-area grow flex flex-col">
+        <div className="conversation-area pt-14  pb-10 grow flex flex-col h-full relative">
 
           {/* messages */}
-          <div className="message-box p-1 grow flex flex-col gap-1">
-            <div className=" message  max-w-50 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
+          <div
+          
+     ref={messageBox}
 
-              <small className='opacity-55 text-sm'>example@gmail.com</small>
-              <p className='text-sm'>Lorem ipsum dolor sit amet.Lorem ipsum dolor sit amet.</p>
-            </div>
-            <div className=" ml-auto message  max-w-50 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
 
-              <small className='opacity-55 text-sm'>example@gmail.com</small>
-              <p className='text-sm'>Lorem ipsum dolor sit amet.</p>
-            </div>
+
+          className="message-box p-1 grow flex flex-col gap-1 overflow-auto max-h-full scrollbar-hide ">
+          
           </div>
-
+     
           {/* input bottom pe */}
-          <div className="inputField w-full flex">
+          <div className="inputField w-full flex absolute bottom-0">
             <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               className='p-2 px-4 w-full border-none outline-none grow bg-white text-black'
               type="text"
               placeholder='enter message'
             />
 
-            <button className=' px-5 bg-slate-500 '>
+            <button
+              onClick={send}
+              className=' px-5 bg-slate-500 '>
               <i className='ri-send-plane-fill'></i>
             </button>
           </div>
@@ -133,7 +182,7 @@ initializeSocket()
 
 
 
-        <div className={`sidepanel w-full h-full flex flex-col gap-2 absolute bg-slate-50 transition-all  ${isSidePanelOpen ? 'translate-x-0' : '-translate-x-full'} top-0`}>
+        <div className={`sidepanel w-full h-full flex flex-col gap-2 absolute z-20 bg-slate-50 transition-all  ${isSidePanelOpen ? 'translate-x-0' : '-translate-x-full'} top-0`}>
 
           <header className='flex justify-between items-center px-4 p-2 bg-slate-200'>
             <h1 className='font-semibold text-lg'>Collaborator</h1>

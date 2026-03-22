@@ -3,6 +3,8 @@ import http from 'http'//--------------------------because it make ease while us
 import app from './src/app.js';
 import connectdb from './src/db/db.js';
 import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose';
+import projectModel from './src/models/project.models.js';
 import { Server } from 'socket.io'
 
 const port = process.env.PORT || 4000
@@ -15,12 +17,21 @@ const io = new Server(server, {
 
 });
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
 
 
     try {
 
         const token = socket.handshake.auth?.token || socket.handshake.headers.authorization?.split(' ')[1];;
+
+        const projectId = socket.handshake.query.projectId;
+
+        if (!mongoose.Types.ObjectId.isValid(projectId)) {
+            return next(new Error('Invalid projectId'));
+        }
+
+        socket.project = await projectModel.findById(projectId)
+
 
         if (!token) {
             return next(new Error('Authentication error'))
@@ -32,7 +43,6 @@ io.use((socket, next) => {
         if (!decoded) {
             return next(new Error('Authentication error'))
         }
-
 
 
         socket.user = decoded
@@ -48,15 +58,28 @@ io.use((socket, next) => {
 
 io.on('connection', socket => {
 
+
+    socket.roomId = socket.project._id.toString();
+
     console.log("user is connected")
 
-    socket.on('event', data => { /* … */ });
-    socket.on('disconnect', () => { /* … */ });
+    socket.join(socket.roomId)
+
+
+    socket.on('project-message', data => {
+
+
+        socket.broadcast.to(socket.roomId).emit('project-message', data)
+    })
+
+
+    socket.on('disconnect', () => {
+
+        console.log("user is dissconnected")
+        socket.leave(socket.roomId)
+
+    });
 });
-
-
-
-
 
 
 
