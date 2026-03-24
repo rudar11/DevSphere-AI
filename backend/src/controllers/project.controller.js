@@ -105,3 +105,31 @@ return res.status(200).json({
 }
 
 }
+
+
+export const updateFileTree = async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+
+        const { projectId, fileTree } = req.body;
+
+        const project = await projectService.updateFileTree({
+            projectId,
+            fileTree
+        })
+
+        return res.status(200).json({
+            project
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.status(400).json({ error: err.message })
+    }
+
+}
