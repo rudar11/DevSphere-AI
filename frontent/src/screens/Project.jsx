@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios from '../config/axios'
@@ -14,7 +13,6 @@ function SyntaxHighlightedCode(props) {
   React.useEffect(() => {
     if (ref.current && props.className?.includes('lang-') && window.hljs) {
       window.hljs.highlightElement(ref.current)
-      // hljs won't reprocess the element unless this attribute is removed
       ref.current.removeAttribute('data-highlighted')
     }
   }, [props.className, props.children])
@@ -23,7 +21,7 @@ function SyntaxHighlightedCode(props) {
 }
 
 const Project = () => {
-  const location = useLocation() // project ko open kar liya hai 
+  const location = useLocation() 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState([])
@@ -76,7 +74,7 @@ const Project = () => {
       message,
       sender: user
     })
-    setMessages(prevMessages => [...prevMessages, { sender: user, message }]) // add 
+    setMessages(prevMessages => [...prevMessages, { sender: user, message }])
     setMessage("")
   }
 
@@ -114,9 +112,9 @@ const Project = () => {
         if (message.fileTree) {
           setFileTree(message.fileTree || {})
         }
-        setMessages(prevMessages => [...prevMessages, data]) // Update messages state
+        setMessages(prevMessages => [...prevMessages, data]) 
       } else {
-        setMessages(prevMessages => [...prevMessages, data]) // Update messages state
+        setMessages(prevMessages => [...prevMessages, data]) 
       }
     })
 
@@ -134,7 +132,7 @@ const Project = () => {
   }, [])
 
   function saveFileTree(ft) {
-    axios.put('/projects/update-file-tree', {
+    axios.put('/api/projects/update-file-tree', {
       projectId: project._id,
       fileTree: ft
     }).then(res => {
@@ -182,11 +180,8 @@ const Project = () => {
             ref={messageBox} 
             className="message-box p-4 flex-grow flex flex-col gap-4 overflow-y-auto scrollbar-hide">
             
-     {messages.map((msg, index) => {
-              // YAHAN FIX KIYA HAI: Email aur ID dono se check karega taaki 100% match ho jaye
+            {messages.map((msg, index) => {
               const isAi = msg?.sender?._id === 'ai';
-              
-              // Agar ID match na ho, toh email se match kar lega (Foolproof check)
               const isMe = (user?._id && msg?.sender?._id && String(msg.sender._id) === String(user._id)) || 
                            (user?.email && msg?.sender?.email && msg.sender.email === user.email);
 
@@ -198,7 +193,6 @@ const Project = () => {
                     {msg?.sender?.email || 'Unknown User'}
                   </small>
                   
-                  {/* MESSAGE BUBBLE: isMe true hote hi background bg-blue-600 ho jayega */}
                   <div className={`p-3 rounded-2xl shadow-sm text-sm break-words overflow-hidden ${isMe ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-tl-none'}`}>
                     {isAi ? WriteAiMessage(msg.message) : <p className="leading-relaxed whitespace-pre-wrap break-words">{msg.message}</p>}
                   </div>
@@ -262,7 +256,7 @@ const Project = () => {
         </div>
       </section>
 
-      {/* RIGHT SECTION - Workspace (File Explorer + Code Editor) */}
+      {/* RIGHT SECTION - Workspace */}
       <section className='right flex-grow flex flex-col md:flex-row bg-gray-950 w-full overflow-hidden'>
 
         {/* File Explorer */}
@@ -287,9 +281,7 @@ const Project = () => {
         {/* Code Editor Area */}
         <div className="code-editor flex flex-col flex-grow w-full min-h-[50vh] md:h-full overflow-hidden shrink min-w-0">
           
-          {/* Top Bar (Tabs & Actions) */}
           <div className="top flex flex-col sm:flex-row justify-between items-start sm:items-center w-full bg-[#131a28] border-b border-gray-800">
-            
             <div className="files flex overflow-x-auto scrollbar-hide w-full sm:w-auto">
               {openFiles.map((file, index) => (
                 <button
@@ -326,13 +318,14 @@ const Project = () => {
                     setIframeUrl(url)
                   })
                 }}
-                className='flex items-center gap-1.5 px-4 py-1.5 bg-emerald-600/20 text-emerald-500 border border-emerald-600/50 rounded-lg hover:bg-emerald-600 hover:text-white transition-all text-sm font-semibold active:scale-95 whitespace-nowrap'>
+                /* YAHAN FIX KIYA HAI: Naya Blue button class hover scale ke sath */
+                className='flex items-center gap-1.5 px-4 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/50 rounded-lg hover:bg-blue-600 hover:text-white hover:scale-105 transition-all duration-300 ease-in-out text-sm font-semibold active:scale-95 whitespace-nowrap shadow-sm hover:shadow-blue-500/30'
+              >
                 <i className="ri-play-fill text-lg"></i> Run
               </button>
             </div>
           </div>
 
-          {/* Actual Code Area */}
           <div className="bottom flex flex-grow w-full overflow-hidden bg-gray-950 relative">
             {fileTree[currentFile] ? (
               <div className="code-editor-area absolute inset-0 overflow-auto">
@@ -352,7 +345,7 @@ const Project = () => {
                       setFileTree(ft)
                       saveFileTree(ft)
                     }}
-                    dangerouslySetInnerHTML={{ __html: hljs.highlight('javascript', fileTree[currentFile].file.contents).value }}
+                    dangerouslySetInnerHTML={{ __html: hljs.highlight(fileTree[currentFile].file.contents, { language: 'javascript' }).value }}
                     style={{
                       whiteSpace: 'pre-wrap',
                       paddingBottom: '25rem',
@@ -435,4 +428,4 @@ const Project = () => {
   )
 }
 
-export default Project
+export default Project 
