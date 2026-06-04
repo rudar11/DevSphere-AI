@@ -10,7 +10,11 @@ import aiRoutes from '../src/routes/ai.routes.js'
 const app = express()
 
 //middlewares
-app.use(cors())
+// 👇 YAHAN CORS UPDATE KIYA HAI 👇
+app.use(cors({
+    origin: 'https://dev-sphere-ai.vercel.app',
+    credentials: true
+}))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())

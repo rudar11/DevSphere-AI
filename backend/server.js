@@ -10,12 +10,14 @@ import { Server } from 'socket.io'
 
 const port = process.env.PORT || 4000
 const server = http.createServer(app)
+
+// 👇 YAHAN SOCKET KA CORS UPDATE KIYA HAI 👇
 const io = new Server(server, {
-
     cors: {
-        origin: '*',
+        origin: 'https://dev-sphere-ai.vercel.app',
+        methods: ["GET", "POST"],
+        credentials: true
     }
-
 });
 
 io.use(async (socket, next) => {
