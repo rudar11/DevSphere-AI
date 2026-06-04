@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import http from 'http'//--------------------------because it make ease while using socket
+import http from 'http'
 import app from './src/app.js';
 import connectdb from './src/db/db.js';
 import jwt from 'jsonwebtoken'

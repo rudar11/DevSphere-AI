@@ -4,7 +4,7 @@ import * as projectService from "../services/project.service.js";
 
 import userModel from "../models/user.models.js";
 import { validationResult } from "express-validator";
-
+ 
 
 export const createProject = async function (req, res) {
     const errors = validationResult(req);
@@ -30,7 +30,7 @@ export const createProject = async function (req, res) {
 
 
 }
-
+ 
 export const getAllProject = async function (req, res) {
 
 

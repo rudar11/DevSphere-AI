@@ -9,7 +9,9 @@ password:process.env.REDIS_PASSWORD,
 
 })
 
-redisClient.on('connect' ,()=>{
+redisClient.on('connect' ,()=>{ // jab redis successfullfy create ho jaaye tab console kra dee
+//     Syntax: object.on('eventName', callbackFunction)
+//     Matlab: “Jab ye event ho, tab ye function execute karo”
     console.log("redis connected")
 })
 

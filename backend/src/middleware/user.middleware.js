@@ -14,7 +14,7 @@ export const authUser = async (req, res, next) => {
 
         if (blacklisted) {
 
-            res.cookie('token', '');
+            res.cookie('token', '');  // token ki value ko empty set kar diya
             return res.status(401).send({ error: 'Unauthorized User' });
         }
 
