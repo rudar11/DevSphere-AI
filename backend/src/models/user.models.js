@@ -17,11 +17,11 @@ const userSchema = new mongoose.Schema(
 
         password: {
             type: String,
-            select:false, // jab user fetch hoga toh password defalt me nahi milega 
+            select:false, 
         }
     })
 
-userSchema.statics.hashPassword=async function (password) {  // ye sirf schema me store hai 
+userSchema.statics.hashPassword=async function (password) { 
 
     return await bcrypt.hash(password , 10)
 }

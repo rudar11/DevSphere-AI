@@ -9,7 +9,7 @@ import { validationResult } from "express-validator";
 export const createProject = async function (req, res) {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()) { // kuch bhi erro milegi toh satus code 400 or eerror
+    if (!errors.isEmpty()) { 
         return res.status(400).json({ errors: errors.array() });
     }
 
